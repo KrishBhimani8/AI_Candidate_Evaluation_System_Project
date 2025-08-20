@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>AI Candidate Evaluation System — v3</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>AI Candidate Evaluation System</h1>
+      <p class="muted">Upload resume, run live interview with captions, and export the final report.</p>
+    </header>
+
+    {% if role != "candidate" %}
+    <!-- Recruiter: Resume Upload -->
+    <section class="card">
+      <div class="card-header"><span class="badge">1</span> Upload Candidate Resume</div>
+      <form id="resumeForm" class="resume-form">
+        <label class="dropzone">
+          <input id="pdfInput" name="file" type="file" accept="application/pdf" required/>
+          <div class="dropzone-inner">
+            <div class="upload-icon">⬆</div>
+            <p>Drag & Drop a <b>PDF</b> or Click to Browse</p>
+          </div>
+        </label>
+
+        <div id="fileChip" class="file-chip hidden">
+          <span id="fileName"></span>
+          <button id="removeFileBtn" type="button" class="chip-x" aria-label="Remove file">✕</button>
+        </div>
+
+        <input class="input" name="job_role" type="text" placeholder="Job Role (Optional) e.g., Data Analyst"/>
+        <!-- <button id="analyzeBtn" class="btn big" type="submit">Analyze Resume</button> -->
+      </form>
+      <div id="resumeHint" class="muted small"></div>
+    </section>
+    {% endif %}
+
+    <!-- Live Interview -->
+    <section class="card">
+      <div class="card-header"><span class="badge">{% if role == 'candidate' %}1{% else %}2{% endif %}</span> Conduct Live Interview</div>
+
+      <div class="row">
+        <input class="input" id="roomInput" type="text" value="{{ room or '' }}" placeholder="Room ID (e.g., demo)" />
+        <button id="startCallBtn" class="btn">Start Video Call</button>
+        <button id="endCallBtn" class="btn outline">End</button>
+        <button id="toggleMicBtn" class="btn outline">🎤 Mic</button>
+      </div>
+
+      <div id="shareBox" class="share-row hidden">
+        <input id="shareLink" class="input readonly" type="text" readonly />
+        <button id="copyLinkBtn" class="btn outline">Copy Link</button>
+      </div>
+
+      <div class="video-grid">
+        <div class="video-box">
+          <video id="localVideo" autoplay playsinline muted></video>
+          <span class="label">{% if role == 'candidate' %}Candidate (You){% else %}Recruiter (You){% endif %}</span>
+        </div>
+        <div class="video-box">
+          <video id="remoteVideo" autoplay playsinline></video>
+          <span class="label">{% if role == 'candidate' %}Recruiter{% else %}Candidate{% endif %}</span>
+        </div>
+      </div>
+
+      <div class="captions">
+        <div class="captions-header"><span class="chip">Live Captions</span></div>
+        <textarea id="captionsArea" class="textarea" placeholder="Live captions will appear here..." readonly></textarea>
+      </div>
+    </section>
+
+    {% if role != "candidate" %}
+    <!-- Generate Report -->
+    <section class="card">
+      <div class="card-header"><span class="badge">3</span> Generate Final Report</div>
+      <div class="row">
+        <button id="generateReportBtn" class="btn big">Generate PDF</button>
+      </div>
+      <div class="muted small">Exports a PDF with resume insights and interview key points.</div>
+    </section>
+    {% endif %}
+
+    <footer class="footer">
+      <small>Local demo: WebRTC via WebSocket signaling • SpeechRecognition runs in browser • Candidate mode via <code>?role=candidate</code></small>
+    </footer>
+  </div>
+
+  <script>
+    // server-rendered role string (e.g. "recruiter" or "candidate")
+    window.APP_ROLE = "{{ role }}";
+  </script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
